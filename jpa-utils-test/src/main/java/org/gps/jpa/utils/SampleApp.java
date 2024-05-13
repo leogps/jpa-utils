@@ -20,47 +20,28 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db.dao;
+package org.gps.jpa.utils;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-/**
- * Base Dao definition.
- */
-public interface Dao<T extends Serializable> {
+@SpringBootApplication(scanBasePackages = {
+        "org.gps.jpa",
+        "org.gps.db",
+})
+@EnableAspectJAutoProxy
+@Slf4j
+public class SampleApp implements CommandLineRunner {
 
-    /**
-     * Count total number of records.
-     */
-    Long countTotal();
+    public static void main(String[] args) {
+        SpringApplication.run(SampleApp.class, args);
+    }
 
-    /**
-     * Finds all the resources.
-     *
-     */
-    List<T> findAll();
-
-    /**
-     * Checks if the entity with primary-key exists.
-     */
-    <K extends Serializable> Boolean isExists(K value);
-
-    /**
-     * Persists the entity.
-     *
-     */
-    void persist(T t);
-
-    /**
-     * Persists the collection of entities.
-     */
-    void persist(Collection<T> tCollection);
-
-    /**
-     * Deletes the entity.
-     *
-     */
-    void delete(T entity);
+    @Override
+    public void run(String... args) throws Exception {
+        log.info("Sample app running...");
+    }
 }

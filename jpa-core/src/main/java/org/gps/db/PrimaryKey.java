@@ -20,47 +20,14 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db.dao;
+package org.gps.db;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * Base Dao definition.
- */
-public interface Dao<T extends Serializable> {
-
-    /**
-     * Count total number of records.
-     */
-    Long countTotal();
-
-    /**
-     * Finds all the resources.
-     *
-     */
-    List<T> findAll();
-
-    /**
-     * Checks if the entity with primary-key exists.
-     */
-    <K extends Serializable> Boolean isExists(K value);
-
-    /**
-     * Persists the entity.
-     *
-     */
-    void persist(T t);
-
-    /**
-     * Persists the collection of entities.
-     */
-    void persist(Collection<T> tCollection);
-
-    /**
-     * Deletes the entity.
-     *
-     */
-    void delete(T entity);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface PrimaryKey {
 }

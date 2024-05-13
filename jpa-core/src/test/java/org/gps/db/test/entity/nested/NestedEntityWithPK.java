@@ -20,20 +20,14 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db;
+package org.gps.db.test.entity.nested;
 
-import java.io.Serializable;
+import lombok.Data;
+import org.gps.db.PrimaryKey;
 
-/**
- * Represents an {@link jakarta.persistence.Entity} that has an Id (as primary key).
- * Currently, the application wide primary key is {@link Number}|{@link Long}.
- */
-public interface IdBasedEntity extends Serializable {
+@Data
+public class NestedEntityWithPK {
 
-    /**
-     * The id of the entity.
-     *
-     * @return Id.
-     */
-    Long getId();
+    @PrimaryKey
+    private Long id;
 }

@@ -24,32 +24,42 @@ package org.gps.db.dao;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.gps.db.IdBasedEntity;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import org.gps.db.Context;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+
 /**
- * An abstract implementation of {@link Dao} for {@link org.gps.db.IdBasedEntity}
+ * An abstract implementation of {@link Dao} for {@link jakarta.persistence.Entity} that has
+ * {@link org.gps.db.PrimaryKey}
  *
  */
+@Repository
 @Setter
 @Getter
-public abstract class AbstractIdBasedDao<T extends IdBasedEntity> extends AbstractDao<T> implements IdBasedDao<T> {
+public abstract class AbstractPrimaryKeyBasedDao<K extends Serializable, T extends Serializable>
+		extends AbstractDao<T>
+		implements PrimaryKeyBasedDao<K, T> {
 
     protected Class<T> typeParamEntityClass;
 
-    @Transactional(readOnly = true)
-    public T findById(Long id) {
-        return getEntityManager().find(getEntityClass(), id);
+	public AbstractPrimaryKeyBasedDao(Context context) {
+		super(context);
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+    public T findByPrimaryKey(K primaryKey) {
+        return getEntityManager().find(getEntityClass(), primaryKey);
     }
 
-    /**
-	 * Counts total number of records when no filter applied.
-	 */
 	@Transactional(readOnly = true)
-	protected Long countTotal() {
+	@Override
+	public Long countTotal() {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		cq.select(cb.count(cq.from(getEntityClass())));
@@ -59,15 +69,17 @@ public abstract class AbstractIdBasedDao<T extends IdBasedEntity> extends Abstra
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	@Override
 	public boolean isDetached(T entity) {
-		return entity.getId() != null  // must not be transient
+		Object primaryKeyValue = context.getPrimaryKeyValue(entity);
+		return primaryKeyValue != null
 				&& !getEntityManager().contains(entity)  // must not be managed now
-				&& findByPrimaryKey(entity) != null;  // must not have been removed
+				&& findByEntity(entity) != null;  // must not have been removed
 	}
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	@Override
 	@SuppressWarnings("unchecked")
-	public T findByPrimaryKey(T entity) {
-		return (T) getEntityManager().find(entity.getClass(), entity.getId());
+	public T findByEntity(T entity) {
+		Object primaryKeyValue = context.getPrimaryKeyValue(entity);
+		return (T) getEntityManager().find(entity.getClass(), primaryKeyValue);
 	}
 }

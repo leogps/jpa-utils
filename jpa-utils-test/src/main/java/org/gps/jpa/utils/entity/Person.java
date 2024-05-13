@@ -20,47 +20,26 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db.dao;
+package org.gps.jpa.utils.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.gps.db.PrimaryKey;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
-/**
- * Base Dao definition.
- */
-public interface Dao<T extends Serializable> {
+@Entity
+@Table(name = "person")
+@Getter
+@Setter
+public class Person implements Serializable {
+    @Id
+    @PrimaryKey
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    /**
-     * Count total number of records.
-     */
-    Long countTotal();
-
-    /**
-     * Finds all the resources.
-     *
-     */
-    List<T> findAll();
-
-    /**
-     * Checks if the entity with primary-key exists.
-     */
-    <K extends Serializable> Boolean isExists(K value);
-
-    /**
-     * Persists the entity.
-     *
-     */
-    void persist(T t);
-
-    /**
-     * Persists the collection of entities.
-     */
-    void persist(Collection<T> tCollection);
-
-    /**
-     * Deletes the entity.
-     *
-     */
-    void delete(T entity);
+    @Column(name = "name")
+    private String name;
 }

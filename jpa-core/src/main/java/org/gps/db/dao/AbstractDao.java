@@ -26,12 +26,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.gps.db.Context;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,7 +46,15 @@ import java.util.List;
  */
 @Repository
 @Slf4j
+@Getter
+@Setter
 public abstract class AbstractDao<T extends Serializable> implements Dao<T> {
+
+    protected final Context context;
+
+    public AbstractDao(Context context) {
+        this.context = context;
+    }
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -76,27 +88,22 @@ public abstract class AbstractDao<T extends Serializable> implements Dao<T> {
 
 	@Override
     @Transactional(readOnly = true)
-	public Boolean isExists(Long id) {
-		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+	public <K extends Serializable> Boolean isExists(K value) {
+        Field field = context.getPrimaryKeyField(getEntityClass());
+        if (field == null) {
+            throw new IllegalStateException(String.format("Field with @PrimaryKey annotation not found for Entity: %s. " +
+                            "Or please (re-)scan the package containing the entityClass.",
+                    getEntityClass()));
+        }
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Boolean> query = cb.createQuery(Boolean.class);
-        query.from(getEntityClass());
+        Root<T> root = query.from(getEntityClass());
         query.select(cb.literal(true));
-
-        Subquery<T> subquery = query.subquery(getEntityClass());
-        Root<T> subRootEntity = subquery.from(getEntityClass());
-        subquery.select(subRootEntity);
-        Predicate predicate = cb.equal(subRootEntity.get("id"), id);
-        subquery.where(predicate);
-        query.where(cb.exists(subquery));
+        Predicate predicate = cb.equal(root.get(field.getName()), value);
+        query.where(predicate);
 
         TypedQuery<Boolean> typedQuery = getEntityManager().createQuery(query);
-        try {
-        	return typedQuery.getSingleResult();
-
-        } catch(Exception e) {
-        	return false;
-        }
-
+        return typedQuery.getResultList().stream().findFirst().orElse(false);
 	}
 
     @Transactional
@@ -130,7 +137,7 @@ public abstract class AbstractDao<T extends Serializable> implements Dao<T> {
     	if(!isDetached(entity) && !entityManager.contains(entity)) {
     	    entityManager.remove(entity);
         } else {
-    	    entityManager.remove(findByPrimaryKey(entity));
+    	    entityManager.remove(findByEntity(entity));
         }
     }
 
@@ -147,5 +154,5 @@ public abstract class AbstractDao<T extends Serializable> implements Dao<T> {
     /**
      * Find the entity from the DB.
      */
-    public abstract T findByPrimaryKey(T entity);
+    public abstract T findByEntity(T entity);
 }

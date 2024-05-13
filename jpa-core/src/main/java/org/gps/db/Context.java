@@ -1,5 +1,5 @@
 /*
- * Copyright (c) "2024", Paul Gundarapu.
+ * Copyright (c) 2024, Paul Gundarapu.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,24 +20,43 @@
  * THE SOFTWARE.
  */
 
-package org.gps.dao;
+package org.gps.db;
 
-import org.gps.db.IdBasedEntity;
-import org.gps.db.dao.AbstractIdBasedDao;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.Data;
 
-/**
- * {@link HibernateIdBasedDao} provides Hibernate based JPA capabilities on {@link AbstractIdBasedDao}
- */
-public abstract class HibernateIdBasedDao<T extends IdBasedEntity> extends AbstractIdBasedDao<T> {
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.Map;
 
-    /**
-     * Returns Hibernate {@link org.hibernate.Session} from the JPA Factory.
-     */
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-    protected Session getSession() {
-        return getEntityManager().unwrap(Session.class);
+@Data
+public class Context {
+
+    private final Map<String, Field> cache;
+
+    public Context(final Map<String, Field> cache) {
+        this.cache = cache;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <K extends Serializable, T extends Serializable> K getPrimaryKeyValue(T entity) {
+        String className = entity.getClass().getName();
+        if (!cache.containsKey(className)) {
+            return null;
+        }
+        Field field = cache.get(className);
+        field.setAccessible(true);
+        try {
+            return (K) field.get(entity);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T extends Serializable> Field getPrimaryKeyField(Class<T> entityClass) {
+        String className = entityClass.getName();
+        if (!cache.containsKey(className)) {
+            return null;
+        }
+        return cache.get(className);
     }
 }

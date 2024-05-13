@@ -22,21 +22,28 @@
 
 package org.gps.db.dao;
 
+import org.gps.db.Context;
+
 import java.io.Serializable;
 
 /**
- * Represents {@link Dao} for {@link org.gps.db.IdBasedEntity}.
+ * Represents {@link Dao} for {@link jakarta.persistence.Entity}s with {@link org.gps.db.PrimaryKey}.
  *
  */
-public interface IdBasedDao<T extends Serializable> extends Dao<T> {
+public interface PrimaryKeyBasedDao<K extends Serializable, T extends Serializable> extends Dao<T> {
 
     /**
      * Finds the entity based on the primary key.
      */
-    T findById(Long id);
+    T findByPrimaryKey(K primaryKey);
 
     /**
      * Save or Update entity.
      */
     void saveOrUpdate(T t);
+
+    /**
+     * @return {@link Context}
+     */
+    Context getContext();
 }

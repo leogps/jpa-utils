@@ -20,47 +20,22 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db.dao;
+package org.gps.jpa.utils.dao;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
+import org.gps.db.Context;
+import org.gps.db.dao.AbstractPrimaryKeyBasedDao;
+import org.gps.jpa.utils.entity.Person;
+import org.springframework.stereotype.Repository;
 
-/**
- * Base Dao definition.
- */
-public interface Dao<T extends Serializable> {
+@Repository
+public class PersonDao extends AbstractPrimaryKeyBasedDao<Long, Person> {
 
-    /**
-     * Count total number of records.
-     */
-    Long countTotal();
+    public PersonDao(Context context) {
+        super(context);
+    }
 
-    /**
-     * Finds all the resources.
-     *
-     */
-    List<T> findAll();
-
-    /**
-     * Checks if the entity with primary-key exists.
-     */
-    <K extends Serializable> Boolean isExists(K value);
-
-    /**
-     * Persists the entity.
-     *
-     */
-    void persist(T t);
-
-    /**
-     * Persists the collection of entities.
-     */
-    void persist(Collection<T> tCollection);
-
-    /**
-     * Deletes the entity.
-     *
-     */
-    void delete(T entity);
+    @Override
+    public Class<Person> getEntityClass() {
+        return Person.class;
+    }
 }

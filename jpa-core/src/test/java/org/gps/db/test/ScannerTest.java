@@ -20,47 +20,37 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db.dao;
+package org.gps.db.test;
 
+import lombok.Data;
+import org.gps.db.Context;
+import org.gps.db.PrimaryKey;
+import org.gps.db.scan.Scanner;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
-/**
- * Base Dao definition.
- */
-public interface Dao<T extends Serializable> {
+public class ScannerTest {
 
-    /**
-     * Count total number of records.
-     */
-    Long countTotal();
+    @Test
+    public void testScan() throws IOException, ClassNotFoundException {
+        Context context = new Scanner().scan("org.gps.db.test");
+        for (String className : context.getCache().keySet()) {
+            System.out.println(className);
+        }
 
-    /**
-     * Finds all the resources.
-     *
-     */
-    List<T> findAll();
+        MyEntity entity = new MyEntity();
+        entity.setId(1234L);
+        Object value = context.getPrimaryKeyValue(entity);
+        Assert.assertEquals(1234L, value);
+    }
+}
 
-    /**
-     * Checks if the entity with primary-key exists.
-     */
-    <K extends Serializable> Boolean isExists(K value);
+@Data
+class MyEntity implements Serializable {
 
-    /**
-     * Persists the entity.
-     *
-     */
-    void persist(T t);
-
-    /**
-     * Persists the collection of entities.
-     */
-    void persist(Collection<T> tCollection);
-
-    /**
-     * Deletes the entity.
-     *
-     */
-    void delete(T entity);
+    @PrimaryKey
+    private Long id;
 }

@@ -22,8 +22,10 @@
 
 package org.gps.dao;
 
+import org.gps.db.Context;
 import org.gps.db.dao.AbstractDao;
 import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +34,18 @@ import java.io.Serializable;
 /**
  * {@link HibernateBasedDao} provides Hibernate based JPA capabilities on {@link AbstractDao}
  */
+@Repository
 public abstract class HibernateBasedDao<T extends Serializable> extends AbstractDao<T> {
+
+    public HibernateBasedDao(Context context) {
+        super(context);
+    }
 
     /**
      * Returns Hibernate {@link org.hibernate.Session} from the JPA Factory.
      */
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-    protected Session getSession() {
+    public Session getSession() {
         return getEntityManager().unwrap(Session.class);
     }
 }

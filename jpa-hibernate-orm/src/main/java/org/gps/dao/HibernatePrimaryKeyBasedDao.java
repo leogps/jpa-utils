@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Paul Gundarapu.
+ * Copyright (c) "2024", Paul Gundarapu.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,47 +20,33 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db.dao;
+package org.gps.dao;
+
+import org.gps.db.Context;
+import org.gps.db.dao.AbstractPrimaryKeyBasedDao;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
 /**
- * Base Dao definition.
+ * {@link HibernatePrimaryKeyBasedDao} provides Hibernate based JPA capabilities on {@link AbstractPrimaryKeyBasedDao}
  */
-public interface Dao<T extends Serializable> {
+@Repository
+public abstract class HibernatePrimaryKeyBasedDao<K extends Serializable, T extends Serializable>
+        extends AbstractPrimaryKeyBasedDao<K, T> {
+
+    public HibernatePrimaryKeyBasedDao(Context context) {
+        super(context);
+    }
 
     /**
-     * Count total number of records.
+     * Returns Hibernate {@link org.hibernate.Session} from the JPA Factory.
      */
-    Long countTotal();
-
-    /**
-     * Finds all the resources.
-     *
-     */
-    List<T> findAll();
-
-    /**
-     * Checks if the entity with primary-key exists.
-     */
-    <K extends Serializable> Boolean isExists(K value);
-
-    /**
-     * Persists the entity.
-     *
-     */
-    void persist(T t);
-
-    /**
-     * Persists the collection of entities.
-     */
-    void persist(Collection<T> tCollection);
-
-    /**
-     * Deletes the entity.
-     *
-     */
-    void delete(T entity);
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public Session getSession() {
+        return getEntityManager().unwrap(Session.class);
+    }
 }

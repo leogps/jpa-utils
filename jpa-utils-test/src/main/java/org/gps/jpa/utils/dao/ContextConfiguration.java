@@ -20,47 +20,20 @@
  * THE SOFTWARE.
  */
 
-package org.gps.db.dao;
+package org.gps.jpa.utils.dao;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
+import org.gps.db.Context;
+import org.gps.db.scan.Scanner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * Base Dao definition.
- */
-public interface Dao<T extends Serializable> {
+import java.io.IOException;
 
-    /**
-     * Count total number of records.
-     */
-    Long countTotal();
+@Configuration
+public class ContextConfiguration {
 
-    /**
-     * Finds all the resources.
-     *
-     */
-    List<T> findAll();
-
-    /**
-     * Checks if the entity with primary-key exists.
-     */
-    <K extends Serializable> Boolean isExists(K value);
-
-    /**
-     * Persists the entity.
-     *
-     */
-    void persist(T t);
-
-    /**
-     * Persists the collection of entities.
-     */
-    void persist(Collection<T> tCollection);
-
-    /**
-     * Deletes the entity.
-     *
-     */
-    void delete(T entity);
+    @Bean
+    public Context daoContext() throws IOException, ClassNotFoundException {
+        return new Scanner().scan("org.gps.jpa.utils");
+    }
 }

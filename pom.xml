@@ -11,6 +11,7 @@
     <modules>
         <module>jpa-core</module>
         <module>jpa-hibernate-orm</module>
+        <module>jpa-utils-test</module>
     </modules>
 
     <name>jpa-utils</name>
@@ -35,6 +36,7 @@
         <hibernate-min.version>5.2.0.Final</hibernate-min.version>
         <lombok.version>1.18.32</lombok.version>
         <slf4j-min.version>1.5.6</slf4j-min.version>
+        <junit.version>4.13.2</junit.version>
     </properties>
 
     <dependencies>
