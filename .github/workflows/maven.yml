@@ -19,6 +19,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read   # Default, necessary for accessing repository contents
+      dependency-graph: write  # Add this line to allow submitting dependency graph
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
